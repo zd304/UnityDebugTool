@@ -3,3 +3,5 @@
 /C++/Temp/Debug
 /C++/*.sdf
 /C++/*.opensdf
+/C++/Bin
+/C++/imgui.ini
