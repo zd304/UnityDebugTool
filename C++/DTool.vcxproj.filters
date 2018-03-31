@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Src">
+      <UniqueIdentifier>{5adf30ce-f521-4139-a9f0-5757a624ea53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{9274f181-444f-40e2-8f2e-a83fe6cb1fd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cJson">
+      <UniqueIdentifier>{a0cb2ace-cb7d-4d24-ad98-64e6b1224880}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Src\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\imgui_impl_dx9.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\main.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\EditorMain.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\HierarchyView.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\cJSON.c">
+      <Filter>cJson</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\NetWork.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\HierarchyTree.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\NetWorkRegister.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\InspectorView.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\inc.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\LogView.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Src\stb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\stb_rect_pack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\stb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\imgui_impl_dx9.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\EditorMain.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\HierarchyView.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\inc.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\cJSON.h">
+      <Filter>cJson</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\NetWork.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\NetWorkDef.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\HierarchyTree.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\NetWorkRegister.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\InspectorView.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\LogView.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
