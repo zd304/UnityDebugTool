@@ -175,11 +175,16 @@ void NetWork::OnReceive(const char* msg, int len)
 
 void NetWork::OnMsg(DTool_CTS cts, const std::string& msg)
 {
+	if (cts > DTool_CTS_Count || cts < 0)
+		return;
 	NetWorkRegister::CBMsg cb = mRegister->cbMsg[cts];
 	if (cb != NULL)
 	{
 		cJSON* root = cJSON_Parse(msg.c_str());
-		cb(this, root);
+		if (root)
+		{
+			cb(this, root);
+		}
 	}
 }
 
