@@ -259,7 +259,55 @@ public class DToolLogic
 			rootJson["a"] = arrayJson;
 		}
 		rootJson["s"] = totalSize;
-		client.SendToServer((int)DTool_CTS.DTool_STC_ObjMemory, rootJson.ToJson());
+		client.SendToServer((int)DTool_CTS.DTool_CTS_ObjMemory, rootJson.ToJson());
+	}
+
+	static string ToCommasNumber(long number)
+	{
+		string szNum = number.ToString();
+
+		int sig = 0;
+		for (int i = 0; i < szNum.Length; ++i)
+		{
+			++sig;
+		}
+		int b = sig % 3;
+		b = 3 - b;
+
+		char[] szCommas = new char[64];
+		for (int i = 0; i < 64; ++i)
+			szCommas[i] = '\0';
+
+		for (int i = 0, index = 0; i < sig; ++index)
+		{
+			if (b == 3)
+			{
+				b = 0;
+				if (i != 0)
+				{
+					szCommas[index] = ',';
+					continue;
+				}
+			}
+			szCommas[index] = szNum[i];
+			++b;
+			++i;
+		}
+
+		string rst = new string(szCommas);
+		return rst;
+	}
+
+	static void Msg_ReqMemory(JsonData json, DToolClient client)
+	{
+		JsonData jsonRoot = new JsonData ();
+		jsonRoot["trm"] = ToCommasNumber(UnityEngine.Profiling.Profiler.GetTotalReservedMemoryLong()); // 总堆内存;
+		jsonRoot["tam"] = ToCommasNumber(UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong()); // 已占用内存;
+		jsonRoot["turm"] = ToCommasNumber(UnityEngine.Profiling.Profiler.GetTotalUnusedReservedMemoryLong()); // 空闲中内存;
+		jsonRoot["mhs"] = ToCommasNumber(UnityEngine.Profiling.Profiler.GetMonoHeapSizeLong()); // 总Mono堆内存;
+		jsonRoot["mus"] = ToCommasNumber(UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong()); // 已占用Mono堆内存;
+
+		client.SendToServer((int)DTool_CTS.DTool_CTS_Memory, jsonRoot.ToJson());
 	}
 
 	public void Init()
@@ -267,6 +315,7 @@ public class DToolLogic
 		mCBMsg[(int)DTool_STC.DTool_STC_ReqObject] = Msg_ReqObject;
 		mCBMsg[(int)DTool_STC.DTool_STC_ReqActive] = Msg_ReqActive;
 		mCBMsg[(int)DTool_STC.DTool_STC_ReqObjMemory] = Msg_ReqObjMemory;
+		mCBMsg[(int)DTool_STC.DTool_STC_ReqMemory] = Msg_ReqMemory;
 	}
 
 	DToolClient mClient;
