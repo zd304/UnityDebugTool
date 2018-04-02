@@ -41,6 +41,8 @@ void LogView::AddLog(const char* msg, const char* stack, LogType type)
 
 void LogView::Update()
 {
+	if (editor_mode != EditorMode_Scene)
+		return;
 	ImGui::SetNextWindowPos(ImVec2(0.0f, window_height * 3.0f / 4.0f), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(window_width * 2.0f / 3.0f, window_height / 4.0f), ImGuiCond_Always);
 	ImGui::Begin("Log", &mOpen, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);

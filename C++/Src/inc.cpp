@@ -95,39 +95,36 @@ std::string ToCommasNumber(int number)
 
 	std::string rst = szCommas;
 	return rst;
+}
 
-	#if 0
-std::vector<std::string> vs;
-	std::string cs = "";
-	int commasIndex = 1;
-	for (int i = 31; i >= 0; --i)
-	{
-		char c = szNum[i];
-		if (c == '\0')
-			continue;
-		if (commasIndex == 3)
-		{
-			vs.push_back(cs);
-			cs = "";
-			commasIndex = 1;
-			continue;
-		}
-		cs.push_back(c);
-		++commasIndex;
-	}
-	if (cs != "")
-	{
-		vs.push_back(cs);
-	}
-#endif
+std::string ToString(int number)
+{
+	char szNum[32];
+	memset(szNum, 0, 32);
+	sprintf_s(szNum, "%d", number);
+
+	std::string rst = szNum;
+
+	return rst;
+}
+
+std::string ToString(float number)
+{
+	char szNum[32];
+	memset(szNum, 0, 32);
+	sprintf_s(szNum, "%f", number);
+
+	std::string rst = szNum;
+
+	return rst;
 }
 
 namespace FormUtility
 {
-	void FormBegin(const char* spr_id)
+	void FormBegin(const char* spr_id, float offset)
 	{
 		ImGui::Columns(2, spr_id, false);
-		ImGui::SetColumnOffset(1, 120.0f);
+		ImGui::SetColumnOffset(1, offset);
 	}
 
 	void FormLabelText(const char* label, const char* text)

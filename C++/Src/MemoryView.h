@@ -23,6 +23,12 @@ private:
 	~MemoryView();
 
 	void SortByMemorySize(int t);
+
+	void UpdateObjectsView();
+
+	void UpdateDetailView();
+
+	void UpdateMemoryView();
 public:
 	bool mOpen;
 	size_t mSelect;
@@ -31,8 +37,11 @@ public:
 	MemoryData** mDatas;
 	int mDatasSize;
 	int mTotalSize;
-	std::string mMemoryTypeNames[MemoryObjType_Count];
 	MemoryObjType mCurSelectType;
+
+	std::string mMemoryTypeNames[MemoryObjType_Count];
+	std::string mRenderTextureFormatNames[RenderTextureFormat_Count];
+	std::string mTextureFormatNames[TextureFormat_Count];
 };
 
 #endif

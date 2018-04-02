@@ -40,7 +40,9 @@ enum RenderTextureFormat
 	RenderTextureFormat_RGB111110Float = 22,
 	RenderTextureFormat_RG32,
 	RenderTextureFormat_RGBAUShort,
-	RenderTextureFormat_RG16
+	RenderTextureFormat_RG16,
+
+	RenderTextureFormat_Count
 };
 
 enum TextureFormat
@@ -103,7 +105,9 @@ enum TextureFormat
 	TextureFormat_PVRTC_2BPP_RGB = -127,
 	TextureFormat_PVRTC_2BPP_RGBA = -127,
 	TextureFormat_PVRTC_4BPP_RGB = -127,
-	TextureFormat_PVRTC_4BPP_RGBA = -127
+	TextureFormat_PVRTC_4BPP_RGBA = -127,
+
+	TextureFormat_Count = TextureFormat_R8 + 1
 };
 
 class MemoryData

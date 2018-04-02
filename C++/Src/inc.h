@@ -22,6 +22,10 @@ std::string STU(const std::string & str);
 
 std::string ToCommasNumber(int number);
 
+std::string ToString(int number);
+
+std::string ToString(float number);
+
 extern float window_width;
 extern float window_height;
 
@@ -36,7 +40,7 @@ extern EditorMode editor_mode;
 
 namespace FormUtility
 {
-	void FormBegin(const char* spr_id);
+	void FormBegin(const char* spr_id, float offset = 120.0f);
 
 	void FormLabelText(const char* label, const char* text);
 
