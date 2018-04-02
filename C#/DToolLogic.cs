@@ -146,10 +146,127 @@ public class DToolLogic
 		go.SetActive(active > 0);
 	}
 
+	public enum MemoryObjType
+	{
+		MemoryObjType_RenderTexture,
+		MemoryObjType_Texture2D,
+		MemoryObjType_CubeMap,
+		MemoryObjType_Mesh,
+		MemoryObjType_AnimationClip,
+	}
+
+	static void Msg_ReqObjMemory(JsonData json, DToolClient client)
+	{
+		int objType = 0;
+		if (!int.TryParse(json["t"].ToString(), out objType))
+			return;
+		MemoryObjType mot = (MemoryObjType)objType;
+
+		Type tp = typeof(UnityEngine.Object);
+		switch (mot)
+		{
+		case MemoryObjType.MemoryObjType_RenderTexture:
+			tp = typeof(RenderTexture);
+			break;
+		case MemoryObjType.MemoryObjType_Texture2D:
+			tp = typeof(Texture2D);
+			break;
+		case MemoryObjType.MemoryObjType_CubeMap:
+			tp = typeof(Cubemap);
+			break;
+		case MemoryObjType.MemoryObjType_Mesh:
+			tp = typeof(Mesh);
+			break;
+		case MemoryObjType.MemoryObjType_AnimationClip:
+			tp = typeof(AnimationClip);
+			break;
+		}
+
+		JsonData rootJson = new JsonData();
+		JsonData arrayJson = new JsonData();
+		long totalSize = 0;
+		UnityEngine.Object[] objs = Resources.FindObjectsOfTypeAll(tp);
+		for (int i = 0; i < objs.Length; ++i)
+		{
+			JsonData jsonData = new JsonData();
+			jsonData["t"] = objType;
+
+			UnityEngine.Object obj = objs[i];
+			switch (mot)
+			{
+			case MemoryObjType.MemoryObjType_RenderTexture:
+				{
+					RenderTexture rt = obj as RenderTexture;
+					jsonData["n"] = rt.name;
+					jsonData["w"] = rt.width;
+					jsonData["h"] = rt.height;
+					jsonData["d"] = rt.depth;
+					jsonData["f"] = (int)rt.format;
+				}
+				break;
+			case MemoryObjType.MemoryObjType_Texture2D:
+				{
+					Texture2D tex = obj as Texture2D;
+					jsonData["n"] = tex.name;
+					jsonData["w"] = tex.width;
+					jsonData["h"] = tex.height;
+					jsonData["m"] = tex.mipmapCount;
+					jsonData["f"] = (int)tex.format;
+				}
+				break;
+			case MemoryObjType.MemoryObjType_CubeMap:
+				{
+					Cubemap cubmap = obj as Cubemap;
+					jsonData["n"] = cubmap.name;
+					jsonData["w"] = cubmap.width;
+					jsonData["h"] = cubmap.height;
+					jsonData["f"] = (int)cubmap.format;
+					jsonData["m"] = cubmap.mipmapCount;
+				}
+				break;
+			case MemoryObjType.MemoryObjType_Mesh:
+				{
+					Mesh mesh = obj as Mesh;
+					jsonData["n"] = mesh.name;
+					jsonData["r"] = mesh.isReadable;
+					jsonData["v"] = mesh.vertexCount;
+					jsonData["smc"] = mesh.subMeshCount;
+					JsonData smdata = new JsonData();
+					jsonData["sm"] = smdata;
+					for (int s = 0; s < mesh.subMeshCount; ++s)
+					{
+						smdata.Add((int)mesh.GetIndexCount(s));
+					}
+				}
+				break;
+			case MemoryObjType.MemoryObjType_AnimationClip:
+				{
+					AnimationClip clip = obj as AnimationClip;
+					jsonData["n"] = clip.name;
+					jsonData["l"] = clip.length;
+					jsonData["il"] = clip.isLooping ? 1 : 0;
+				}
+				break;
+			}
+			long msz = UnityEngine.Profiling.Profiler.GetRuntimeMemorySizeLong(obj);
+			jsonData["sz"] = msz;
+			totalSize += msz;
+
+			arrayJson.Add(jsonData);
+		}
+		if (arrayJson.IsArray)
+		{
+			rootJson["a"] = arrayJson;
+		}
+		rootJson["s"] = totalSize;
+		client.SendToServer((int)DTool_CTS.DTool_STC_ObjMemory, rootJson.ToJson());
+	}
+
 	public void Init()
 	{
 		mCBMsg[(int)DTool_STC.DTool_STC_ReqObject] = Msg_ReqObject;
 		mCBMsg[(int)DTool_STC.DTool_STC_ReqActive] = Msg_ReqActive;
+		mCBMsg[(int)DTool_STC.DTool_STC_ReqObjMemory] = Msg_ReqObjMemory;
 	}
 
 	DToolClient mClient;
