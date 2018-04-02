@@ -38,6 +38,7 @@ public:
 	int mDatasSize;
 	int mTotalSize;
 	MemoryObjType mCurSelectType;
+	TotalMemoryInfo mTotalMemoryInfo;
 
 	std::string mMemoryTypeNames[MemoryObjType_Count];
 	std::string mRenderTextureFormatNames[RenderTextureFormat_Count];

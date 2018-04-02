@@ -110,6 +110,16 @@ enum TextureFormat
 	TextureFormat_Count = TextureFormat_R8 + 1
 };
 
+class TotalMemoryInfo
+{
+public:
+	std::string totalReservedMemory;
+	std::string totalAllocatedMemory;
+	std::string totalUnusedReservedMemory;
+	std::string monoHeapSize;
+	std::string monoUsedSize;
+};
+
 class MemoryData
 {
 public:

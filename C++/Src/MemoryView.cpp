@@ -275,6 +275,19 @@ void MemoryView::UpdateMemoryView()
 	ImGui::SetNextWindowSize(ImVec2(window_width / 3.0f, window_height / 4.0f), ImGuiCond_Always);
 	ImGui::Begin("Memory", &mOpen, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
+	FormUtility::FormBegin("#MemoryView", 200.0f);
+
+	FormUtility::FormLabelText(STU("总堆内存").c_str(), mTotalMemoryInfo.totalReservedMemory.c_str());
+	FormUtility::FormLabelText(STU("已占用内存").c_str(), mTotalMemoryInfo.totalAllocatedMemory.c_str());
+	FormUtility::FormLabelText(STU("空闲中内存").c_str(), mTotalMemoryInfo.totalUnusedReservedMemory.c_str());
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
+	FormUtility::FormLabelText(STU("总Mono堆内存").c_str(), mTotalMemoryInfo.monoHeapSize.c_str());
+	FormUtility::FormLabelText(STU("已占用Mono堆内存").c_str(), mTotalMemoryInfo.monoUsedSize.c_str());
+
+	FormUtility::FormEnd();
+
 	ImGui::End();
 }
 

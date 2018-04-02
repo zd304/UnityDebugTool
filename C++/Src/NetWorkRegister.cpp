@@ -142,10 +142,22 @@ static void Msg_ObjMemory(NetWork* net, cJSON* json)
 	MemoryView::GetInstance()->mLock = false;
 }
 
+static void Msg_Memory(NetWork* net, cJSON* json)
+{
+	TotalMemoryInfo& memoryInfo = MemoryView::GetInstance()->mTotalMemoryInfo;
+
+	memoryInfo.totalReservedMemory = cJSON_GetObjectItem(json, "trm")->valuestring;
+	memoryInfo.totalAllocatedMemory = cJSON_GetObjectItem(json, "tam")->valuestring;
+	memoryInfo.totalUnusedReservedMemory = cJSON_GetObjectItem(json, "turm")->valuestring;
+	memoryInfo.monoHeapSize = cJSON_GetObjectItem(json, "mhs")->valuestring;
+	memoryInfo.monoUsedSize = cJSON_GetObjectItem(json, "mus")->valuestring;
+}
+
 void NetWorkRegister::Init()
 {
 	cbMsg[DTool_CTS_UpdateHierarchy] = Msg_UpdateHierarchy;
 	cbMsg[DTool_CTS_UpdateObject] = Msg_UpdateObject;
 	cbMsg[DTool_CTS_AddLog] = Msg_AddLog;
-	cbMsg[DTool_STC_ObjMemory] = Msg_ObjMemory;
+	cbMsg[DTool_CTS_ObjMemory] = Msg_ObjMemory;
+	cbMsg[DTool_CTS_Memory] = Msg_Memory;
 }

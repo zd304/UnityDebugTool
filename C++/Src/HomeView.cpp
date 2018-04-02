@@ -1,5 +1,6 @@
 #include "HomeView.h"
 #include "MemoryView.h"
+#include "NetWork.h"
 
 HomeView* HomeView::mInstance = NULL;
 
@@ -20,6 +21,14 @@ HomeView::HomeView()
 	mOpen = true;
 }
 
+static void UpdateMemoryInfo()
+{
+	cJSON* json = cJSON_CreateObject();
+	char* text = cJSON_Print(json);
+	NetWork::GetInstance()->SendToClient(DTool_STC_ReqMemory, text);
+	cJSON_Delete(json);
+}
+
 void HomeView::OnMenu()
 {
 	if (ImGui::BeginMenuBar())
@@ -35,6 +44,8 @@ void HomeView::OnMenu()
 			if (ImGui::MenuItem(STU("内存模式").c_str(), NULL, &b))
 			{
 				editor_mode = EditorMode_Memory;
+
+				UpdateMemoryInfo();
 			}
 			ImGui::EndMenu();
 		}
@@ -84,28 +95,14 @@ void HomeView::OnMemoryMode()
 		}
 	}
 
-#if 0
-	if (ImGui::Button(STU("RenderTexture").c_str(), ImVec2(itemWidth, itemHeight)))
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
+
+	if (ImGui::Button(STU("更新总内存信息").c_str(), ImVec2(itemWidth, itemHeight)))
 	{
-		MemoryView::GetInstance()->RequestMemoryObjInfo(MemoryObjType_RenderTexture);
+		UpdateMemoryInfo();
 	}
-	if (ImGui::Button(STU("Texture2D").c_str(), ImVec2(itemWidth, itemHeight)))
-	{
-		MemoryView::GetInstance()->RequestMemoryObjInfo(MemoryObjType_Texture2D);
-	}
-	if (ImGui::Button(STU("CubeMap").c_str(), ImVec2(itemWidth, itemHeight)))
-	{
-		MemoryView::GetInstance()->RequestMemoryObjInfo(MemoryObjType_CubeMap);
-	}
-	if (ImGui::Button(STU("Mesh").c_str(), ImVec2(itemWidth, itemHeight)))
-	{
-		MemoryView::GetInstance()->RequestMemoryObjInfo(MemoryObjType_Mesh);
-	}
-	if (ImGui::Button(STU("AnimationClip").c_str(), ImVec2(itemWidth, itemHeight)))
-	{
-		MemoryView::GetInstance()->RequestMemoryObjInfo(MemoryObjType_AnimationClip);
-	}
-#endif
 
 	ImGui::Unindent(indent);
 }
