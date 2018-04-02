@@ -22,7 +22,9 @@ HierarchyView::HierarchyView()
 
 void HierarchyView::Update()
 {
-	ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+	if (editor_mode != EditorMode_Scene)
+		return;
+	ImGui::SetNextWindowPos(ImVec2(window_width / 3.0f, 0.0f), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(window_width / 3.0f, window_height * 3.0f / 4.0f), ImGuiCond_Always);
 	ImGui::Begin("Hierarchy", &mOpen, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 

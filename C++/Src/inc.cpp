@@ -2,6 +2,7 @@
 
 float window_width = 0.0f;
 float window_height = 0.0f;
+EditorMode editor_mode = EditorMode_Scene;
 
 std::string UTS(const std::string& str)
 {
@@ -55,6 +56,70 @@ std::string STU(const std::string& str)
 	pBuf = NULL;
 
 	return retStr;
+}
+
+std::string ToCommasNumber(int number)
+{
+	char szNum[32];
+	memset(szNum, 0, 32);
+	sprintf_s(szNum, "%d", number);
+
+	int sig = 0;
+	for (int i = 0; i < 32; ++i)
+	{
+		if (szNum[i] == '\0')
+			break;
+		++sig;
+	}
+	int b = sig % 3;
+	b = 3 - b;
+
+	char szCommas[42];
+	memset(szCommas, 0, 42);
+
+	for (int i = 0, index = 0; i < sig; ++index)
+	{
+		if (b == 3)
+		{
+			b = 0;
+			if (i != 0)
+			{
+				szCommas[index] = ',';
+				continue;
+			}
+		}
+		szCommas[index] = szNum[i];
+		++b;
+		++i;
+	}
+
+	std::string rst = szCommas;
+	return rst;
+
+	#if 0
+std::vector<std::string> vs;
+	std::string cs = "";
+	int commasIndex = 1;
+	for (int i = 31; i >= 0; --i)
+	{
+		char c = szNum[i];
+		if (c == '\0')
+			continue;
+		if (commasIndex == 3)
+		{
+			vs.push_back(cs);
+			cs = "";
+			commasIndex = 1;
+			continue;
+		}
+		cs.push_back(c);
+		++commasIndex;
+	}
+	if (cs != "")
+	{
+		vs.push_back(cs);
+	}
+#endif
 }
 
 namespace FormUtility

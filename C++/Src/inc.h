@@ -20,8 +20,19 @@ std::string UTS(const std::string & str);
 
 std::string STU(const std::string & str);
 
+std::string ToCommasNumber(int number);
+
 extern float window_width;
 extern float window_height;
+
+enum EditorMode
+{
+	EditorMode_Scene,
+	EditorMode_Memory
+};
+
+extern EditorMode editor_mode;
+
 
 namespace FormUtility
 {

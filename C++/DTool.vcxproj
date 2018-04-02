@@ -92,6 +92,7 @@
     <ClCompile Include="Src\EditorMain.cpp" />
     <ClCompile Include="Src\HierarchyTree.cpp" />
     <ClCompile Include="Src\HierarchyView.cpp" />
+    <ClCompile Include="Src\HomeView.cpp" />
     <ClCompile Include="Src\imgui.cpp" />
     <ClCompile Include="Src\imgui_demo.cpp" />
     <ClCompile Include="Src\imgui_draw.cpp" />
@@ -100,12 +101,14 @@
     <ClCompile Include="Src\InspectorView.cpp" />
     <ClCompile Include="Src\LogView.cpp" />
     <ClCompile Include="Src\main.cpp" />
+    <ClCompile Include="Src\MemoryView.cpp" />
     <ClCompile Include="Src\NetWork.cpp" />
     <ClCompile Include="Src\NetWorkRegister.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\cJSON.h" />
     <ClInclude Include="Src\EditorMain.h" />
+    <ClInclude Include="Src\HomeView.h" />
     <ClInclude Include="Src\HierarchyTree.h" />
     <ClInclude Include="Src\HierarchyView.h" />
     <ClInclude Include="Src\imconfig.h" />
@@ -115,6 +118,8 @@
     <ClInclude Include="Src\inc.h" />
     <ClInclude Include="Src\InspectorView.h" />
     <ClInclude Include="Src\LogView.h" />
+    <ClInclude Include="Src\MemoryData.h" />
+    <ClInclude Include="Src\MemoryView.h" />
     <ClInclude Include="Src\NetWork.h" />
     <ClInclude Include="Src\NetWorkDef.h" />
     <ClInclude Include="Src\NetWorkRegister.h" />

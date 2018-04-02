@@ -54,6 +54,12 @@
     <ClCompile Include="Src\LogView.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="Src\HomeView.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MemoryView.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\stb_truetype.h">
@@ -105,6 +111,15 @@
       <Filter>Src</Filter>
     </ClInclude>
     <ClInclude Include="Src\LogView.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\HomeView.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MemoryView.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MemoryData.h">
       <Filter>Src</Filter>
     </ClInclude>
   </ItemGroup>

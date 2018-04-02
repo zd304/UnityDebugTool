@@ -2,6 +2,7 @@
 #include "HierarchyView.h"
 #include "InspectorView.h"
 #include "LogView.h"
+#include "MemoryView.h"
 
 static void Msg_UpdateHierarchy(NetWork* net, cJSON* json)
 {
@@ -42,9 +43,109 @@ static void Msg_AddLog(NetWork* net, cJSON* json)
 	LogView::GetInstance()->AddLog(msg.c_str(), stack.c_str(), (LogType)type);
 }
 
+static void Msg_ObjMemory(NetWork* net, cJSON* json)
+{
+	MemoryView::GetInstance()->mLock = true;
+
+	MemoryView::GetInstance()->Clear();
+
+	cJSON* arrayJson = cJSON_GetObjectItem(json, "a");
+	if (arrayJson == NULL)
+	{
+		MemoryView::GetInstance()->mLock = false;
+		return;
+	}
+
+	MemoryView::GetInstance()->mTotalSize = cJSON_GetObjectItem(json, "s")->valueint;
+
+	int count = cJSON_GetArraySize(arrayJson);
+	MemoryView::GetInstance()->mDatas = new MemoryData*[count];
+	for (int i = 0; i < count; ++i)
+	{
+		MemoryView::GetInstance()->mDatas[i] = NULL;
+	}
+
+	MemoryView::GetInstance()->mDatasSize = count;
+	for (int i = 0; i < count; ++i)
+	{
+		cJSON* itemJson = cJSON_GetArrayItem(arrayJson, i);
+		MemoryObjType moType = (MemoryObjType)cJSON_GetObjectItem(itemJson, "t")->valueint;
+		MemoryData* data = NULL;
+		switch (moType)
+		{
+		case MemoryObjType_RenderTexture:
+			{
+				MemoryData_RenderTexture* sdata = new MemoryData_RenderTexture();
+				data = sdata;
+				sdata->depth = cJSON_GetObjectItem(itemJson, "d")->valueint;
+				sdata->width = cJSON_GetObjectItem(itemJson, "w")->valueint;
+				sdata->height = cJSON_GetObjectItem(itemJson, "h")->valueint;
+				sdata->format = (RenderTextureFormat)cJSON_GetObjectItem(itemJson, "f")->valueint;
+				break;
+			}
+		case MemoryObjType_Texture2D:
+			{
+				MemoryData_Texture2D* sdata = new MemoryData_Texture2D();
+				data = sdata;
+				sdata->mipmapCount = cJSON_GetObjectItem(itemJson, "m")->valueint;
+				sdata->width = cJSON_GetObjectItem(itemJson, "w")->valueint;
+				sdata->height = cJSON_GetObjectItem(itemJson, "h")->valueint;
+				sdata->format = (TextureFormat)cJSON_GetObjectItem(itemJson, "f")->valueint;
+				break;
+			}
+		case MemoryObjType_CubeMap:
+			{
+				MemoryData_CubeMap* sdata = new MemoryData_CubeMap();
+				data = sdata;
+				sdata->mipmapCount = cJSON_GetObjectItem(itemJson, "m")->valueint;
+				sdata->width = cJSON_GetObjectItem(itemJson, "w")->valueint;
+				sdata->height = cJSON_GetObjectItem(itemJson, "h")->valueint;
+				sdata->format = (TextureFormat)cJSON_GetObjectItem(itemJson, "f")->valueint;
+				break;
+			}
+		case MemoryObjType_Mesh:
+			{
+				MemoryData_Mesh* sdata = new MemoryData_Mesh();
+				data = sdata;
+				sdata->vcount = cJSON_GetObjectItem(itemJson, "v")->valueint;
+				sdata->readable = cJSON_GetObjectItem(itemJson, "r")->valueint;
+				sdata->subMeshCount = cJSON_GetObjectItem(itemJson, "smc")->valueint;
+				cJSON* jsonICounts = cJSON_GetObjectItem(itemJson, "sm");
+				sdata->icounts.clear();
+				for (int ic = 0; ic < cJSON_GetArraySize(jsonICounts); ++ic)
+				{
+					cJSON* itemIC = cJSON_GetArrayItem(jsonICounts, ic);
+					int icount = itemIC->valueint;
+					sdata->icounts.push_back(icount);
+				}
+				break;
+			}
+		case MemoryObjType_AnimationClip:
+			{
+				MemoryData_AnimationClip* sdata = new MemoryData_AnimationClip();
+				data = sdata;
+				sdata->length = (float)cJSON_GetObjectItem(itemJson, "l")->valuedouble;
+				sdata->isLooping = cJSON_GetObjectItem(itemJson, "il")->valueint;
+				break;
+			}
+		}
+
+		if (data != NULL)
+		{
+			data->name = cJSON_GetObjectItem(itemJson, "n")->valuestring;
+			data->size = cJSON_GetObjectItem(itemJson, "sz")->valueint;
+			int objType = cJSON_GetObjectItem(itemJson, "t")->valueint;
+			data->type = (MemoryObjType)objType;
+			MemoryView::GetInstance()->mDatas[i] = data;
+		}
+	}
+	MemoryView::GetInstance()->mLock = false;
+}
+
 void NetWorkRegister::Init()
 {
 	cbMsg[DTool_CTS_UpdateHierarchy] = Msg_UpdateHierarchy;
 	cbMsg[DTool_CTS_UpdateObject] = Msg_UpdateObject;
 	cbMsg[DTool_CTS_AddLog] = Msg_AddLog;
+	cbMsg[DTool_STC_ObjMemory] = Msg_ObjMemory;
 }

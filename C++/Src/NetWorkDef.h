@@ -6,6 +6,7 @@ enum DTool_STC
 	DTool_STC_None					= 0,
 	DTool_STC_ReqObject				= 1,
 	DTool_STC_ReqActive				= 2,
+	DTool_STC_ReqObjMemory			= 3,
 
 	DTool_STC_Count
 };
@@ -16,6 +17,7 @@ enum DTool_CTS
 	DTool_CTS_UpdateHierarchy		= 1,
 	DTool_CTS_UpdateObject			= 2,
 	DTool_CTS_AddLog				= 3,
+	DTool_STC_ObjMemory				= 4,
 
 	DTool_CTS_Count
 };
