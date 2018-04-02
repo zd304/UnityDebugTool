@@ -32,6 +32,7 @@ public:
 	int mDatasSize;
 	int mTotalSize;
 	std::string mMemoryTypeNames[MemoryObjType_Count];
+	MemoryObjType mCurSelectType;
 };
 
 #endif

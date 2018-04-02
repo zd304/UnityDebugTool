@@ -21,6 +21,7 @@ MemoryView::MemoryView()
 	mDatasSize = 0;
 	mLock = false;
 	mTotalSize = 0;
+	mCurSelectType = MemoryObjType_Count;
 
 	mOpen = true;
 	mSelect = -1;

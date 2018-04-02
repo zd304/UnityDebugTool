@@ -63,6 +63,28 @@ void HomeView::OnMemoryMode()
 	float indent = window_width / 6.0f - itemWidth * 0.5f - 16.0f;
 	ImGui::Indent(indent);
 
+	for (int i = 0; i < MemoryObjType_Count; ++i)
+	{
+		MemoryObjType ct = (MemoryObjType)i;
+		MemoryObjType oldCT = MemoryView::GetInstance()->mCurSelectType;
+		if (oldCT == ct)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Button, 0xff008800);
+		}
+
+		if (ImGui::Button(STU(MemoryView::GetInstance()->mMemoryTypeNames[i]).c_str(), ImVec2(itemWidth, itemHeight)))
+		{
+			MemoryView::GetInstance()->mCurSelectType = ct;
+			MemoryView::GetInstance()->RequestMemoryObjInfo(ct);
+		}
+
+		if (oldCT == ct)
+		{
+			ImGui::PopStyleColor();
+		}
+	}
+
+#if 0
 	if (ImGui::Button(STU("RenderTexture").c_str(), ImVec2(itemWidth, itemHeight)))
 	{
 		MemoryView::GetInstance()->RequestMemoryObjInfo(MemoryObjType_RenderTexture);
@@ -83,6 +105,7 @@ void HomeView::OnMemoryMode()
 	{
 		MemoryView::GetInstance()->RequestMemoryObjInfo(MemoryObjType_AnimationClip);
 	}
+#endif
 
 	ImGui::Unindent(indent);
 }
