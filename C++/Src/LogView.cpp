@@ -43,6 +43,37 @@ void LogView::AddLog(const char* msg, const char* stack, LogType type)
 	}
 }
 
+void LogView::OnShowEnable(const char* showName, bool& bShow)
+{
+	ImGui::SameLine();
+	bool btmp = bShow;
+	if (btmp)
+	{
+		ImGui::PushStyleColor(ImGuiCol_Button, 0xff008800);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, 0xff008800);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, 0xff008800);
+	}
+	else
+	{
+		ImGui::PushStyleColor(ImGuiCol_Button, 0xff444444);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, 0xff444444);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, 0xff444444);
+	}
+	if (ImGui::Button(showName))
+	{
+		bShow = !bShow;
+		mSelect = -1;
+	}
+	if (btmp)
+	{
+		ImGui::PopStyleColor(3);
+	}
+	else
+	{
+		ImGui::PopStyleColor(3);
+	}
+}
+
 void LogView::Update()
 {
 	if (editor_mode != EditorMode_Scene)
@@ -56,44 +87,10 @@ void LogView::Update()
 		mLogs.clear();
 		mSelect = -1;
 	}
-	bool btmp = false;
-	//////////////////////////////////////////////////////////////////////////
-	ImGui::SameLine();
-	btmp = mShowLog;
-	if (btmp)
-		ImGui::PushStyleColor(ImGuiCol_Button, 0xff008800);
-	else
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, 0xff444444);
-	if (ImGui::Button(STU("显示消息").c_str()))
-	{
-		mShowLog = !mShowLog;
-	}
-	ImGui::PopStyleColor();
-	//////////////////////////////////////////////////////////////////////////
-	ImGui::SameLine();
-	btmp = mShowWarning;
-	if (btmp)
-		ImGui::PushStyleColor(ImGuiCol_Button, 0xff008800);
-	else
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, 0xff444444);
-	if (ImGui::Button(STU("显示提醒").c_str()))
-	{
-		mShowWarning = !mShowWarning;
-	}
-	ImGui::PopStyleColor();
-	//////////////////////////////////////////////////////////////////////////
-	ImGui::SameLine();
-	btmp = mShowError;
-	if (btmp)
-		ImGui::PushStyleColor(ImGuiCol_Button, 0xff008800);
-	else
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, 0xff444444);
-	if (ImGui::Button(STU("显示错误").c_str()))
-	{
-		mShowError = !mShowError;
-	}
-	ImGui::PopStyleColor();
-	//////////////////////////////////////////////////////////////////////////
+
+	OnShowEnable(STU("显示提醒").c_str(), mShowLog);
+	OnShowEnable(STU("显示警告").c_str(), mShowWarning);
+	OnShowEnable(STU("显示错误").c_str(), mShowError);
 
 	ImGui::BeginChild("#LogChild");
 	int index = 0;

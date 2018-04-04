@@ -32,6 +32,8 @@ public:
 private:
 	LogView();
 	~LogView();
+
+	void OnShowEnable(const char* showName, bool& bShow);
 private:
 	static LogView* mInstance;
 	bool mOpen;
