@@ -310,12 +310,18 @@ public class DToolLogic
 		client.SendToServer((int)DTool_CTS.DTool_CTS_Memory, jsonRoot.ToJson());
 	}
 
+	static void Msg_ReqUpdateHierarchy(JsonData json, DToolClient client)
+	{
+		client.logic.UpdateHierarchy();
+	}
+
 	public void Init()
 	{
 		mCBMsg[(int)DTool_STC.DTool_STC_ReqObject] = Msg_ReqObject;
 		mCBMsg[(int)DTool_STC.DTool_STC_ReqActive] = Msg_ReqActive;
 		mCBMsg[(int)DTool_STC.DTool_STC_ReqObjMemory] = Msg_ReqObjMemory;
 		mCBMsg[(int)DTool_STC.DTool_STC_ReqMemory] = Msg_ReqMemory;
+		mCBMsg[(int)DTool_STC.DTool_STC_ReqUpdateHierarchy] = Msg_ReqUpdateHierarchy;
 	}
 
 	DToolClient mClient;

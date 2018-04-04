@@ -43,18 +43,18 @@ void InspectorView::Update()
 		bool bActive = mData->active > 0;
 		if (FormUtility::FormCheckBox(STU("¼¤»î×´Ì¬").c_str(), &bActive))
 		{
-			cJSON* json = cJSON_CreateObject();
-			cJSON_AddStringToObject(json, "p", mData->path.c_str());
-			mData->active = bActive ? 1 : 0;
-			cJSON_AddNumberToObject(json, "a", mData->active = bActive);
-			char* text = cJSON_Print(json);
-			NetWork::GetInstance()->SendToClient(DTool_STC_ReqActive, text);
-			cJSON_Delete(json);
-
 			HierarchyTree& tree = HierarchyView::GetInstance()->mTree;
 			HierarchyTreeNode* pNode = tree.GetNode(mData->path);
-			if (pNode)
+			if (pNode && pNode->mParent != NULL)
 			{
+				cJSON* json = cJSON_CreateObject();
+				cJSON_AddStringToObject(json, "p", mData->path.c_str());
+				mData->active = bActive ? 1 : 0;
+				cJSON_AddNumberToObject(json, "a", mData->active = bActive);
+				char* text = cJSON_Print(json);
+				NetWork::GetInstance()->SendToClient(DTool_STC_ReqActive, text);
+				cJSON_Delete(json);
+
 				pNode->mActive = bActive;
 			}
 		}

@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
+using System;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using LitJson;
 
 public enum DTool_STC
 {
@@ -13,6 +16,7 @@ public enum DTool_STC
 	DTool_STC_ReqActive				= 2,
 	DTool_STC_ReqObjMemory			= 3,
 	DTool_STC_ReqMemory				= 4,
+	DTool_STC_ReqUpdateHierarchy	= 5,
 
 	DTool_STC_Count
 }
@@ -38,18 +42,63 @@ public class DToolClient : MonoBehaviour
 
 	void InitServer()
 	{
-		IPAddress ipAdr = IPAddress.Parse("127.0.0.1");
-		ipep = new IPEndPoint(ipAdr, 5304);
+		string strJson = "";
+		string configPath = Application.persistentDataPath;
+		// Android : /data/data/xxx.xxx.xxx/files
+		// IOS : Application/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/Documents
+		#if UNITY_EDITOR_WIN
+		configPath = Application.dataPath;
+		configPath = configPath.Substring(0, configPath.LastIndexOf('/'));
+		configPath += "/Persistent";
+		#endif
 
-		clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-		clientSocket.Connect(ipep);
+		using (FileStream file = new FileStream(configPath + "/config/DTool.cfg", FileMode.Open))
+		{
+			byte[] byData = new byte[file.Length];
+			char[] charData = new char[file.Length];
+			file.Seek(0, SeekOrigin.Begin);
+			file.Read(byData, 0, (int)file.Length);
+			Decoder d = Encoding.UTF8.GetDecoder();
+			d.GetChars(byData, 0, byData.Length, charData, 0);
+			file.Close();
 
-		thread = new Thread(new ThreadStart(GoClient));
-		thread.Start();
+			strJson = new string(charData);
+		}
 
-		logic = new DToolLogic(this);
-		logic.Init();
-		StartCoroutine(DelayInit());
+		if (string.IsNullOrEmpty(strJson))
+			return;
+		
+		JsonData json = JsonMapper.ToObject<JsonData>(strJson);
+		if (json == null)
+			return;
+
+		string strIP = json["ip"].ToString();
+		int port = 5304;
+		if (!int.TryParse(json["port"].ToString(), out port))
+		{
+			return;
+		}
+		IPAddress ipAdr = IPAddress.Parse(strIP);
+		ipep = new IPEndPoint(ipAdr, port);
+
+		try
+		{
+			clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			clientSocket.Connect(ipep);
+		}
+		catch (Exception)
+		{
+			clientSocket = null;
+		}
+		if (clientSocket != null)
+		{
+			thread = new Thread(new ThreadStart(GoClient));
+			thread.Start();
+
+			logic = new DToolLogic(this);
+			logic.Init();
+			StartCoroutine(DelayInit());
+		}
 	}
 
 	IEnumerator DelayInit()
@@ -66,10 +115,19 @@ public class DToolClient : MonoBehaviour
 			if (clientSocket == null)
 				return;
 			byte[] receiveData = new byte[1024];
-			int recv = clientSocket.Receive(receiveData);
+			int recv = 0;
+			try
+			{
+				recv = clientSocket.Receive(receiveData);
+			}
+			catch (Exception e)
+			{
+				clientSocket = null;
+				recv = 0;
+			}
 			if (recv == 0)
 			{
-				Connect();
+				clientSocket = null;
 				continue;
 			}
 
@@ -122,8 +180,11 @@ public class DToolClient : MonoBehaviour
 
 	void OnDisable()
 	{
-		clientSocket.Shutdown(SocketShutdown.Both);
-		clientSocket.Close();
+		if (clientSocket != null)
+		{
+			clientSocket.Shutdown(SocketShutdown.Both);
+			clientSocket.Close();
+		}
 
 		if (thread != null)
 		{
@@ -151,6 +212,8 @@ public class DToolClient : MonoBehaviour
 
 	void HandleLog(string message, string stack, LogType type)
 	{
+		if (logic == null)
+			return;
 		logic.AddLog(message, stack, type);
 	}
 

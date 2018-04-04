@@ -19,6 +19,10 @@ LogView::LogView()
 	mOpen = true;
 	mLogs.clear();
 	mSelect = -1;
+
+	mShowLog = true;
+	mShowWarning = true;
+	mShowError = true;
 }
 
 LogView::~LogView()
@@ -47,10 +51,62 @@ void LogView::Update()
 	ImGui::SetNextWindowSize(ImVec2(window_width * 2.0f / 3.0f, window_height / 4.0f), ImGuiCond_Always);
 	ImGui::Begin("Log", &mOpen, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
+	if (ImGui::Button(STU("清空").c_str()))
+	{
+		mLogs.clear();
+		mSelect = -1;
+	}
+	bool btmp = false;
+	//////////////////////////////////////////////////////////////////////////
+	ImGui::SameLine();
+	btmp = mShowLog;
+	if (btmp)
+		ImGui::PushStyleColor(ImGuiCol_Button, 0xff008800);
+	else
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, 0xff444444);
+	if (ImGui::Button(STU("显示消息").c_str()))
+	{
+		mShowLog = !mShowLog;
+	}
+	ImGui::PopStyleColor();
+	//////////////////////////////////////////////////////////////////////////
+	ImGui::SameLine();
+	btmp = mShowWarning;
+	if (btmp)
+		ImGui::PushStyleColor(ImGuiCol_Button, 0xff008800);
+	else
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, 0xff444444);
+	if (ImGui::Button(STU("显示提醒").c_str()))
+	{
+		mShowWarning = !mShowWarning;
+	}
+	ImGui::PopStyleColor();
+	//////////////////////////////////////////////////////////////////////////
+	ImGui::SameLine();
+	btmp = mShowError;
+	if (btmp)
+		ImGui::PushStyleColor(ImGuiCol_Button, 0xff008800);
+	else
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, 0xff444444);
+	if (ImGui::Button(STU("显示错误").c_str()))
+	{
+		mShowError = !mShowError;
+	}
+	ImGui::PopStyleColor();
+	//////////////////////////////////////////////////////////////////////////
+
+	ImGui::BeginChild("#LogChild");
 	int index = 0;
 	for (std::list<LogItem>::iterator it = mLogs.begin(); it != mLogs.end(); ++it)
 	{
 		LogItem& item = *it;
+		if (!mShowLog && (item.type == LogType_Log || item.type == LogType_Assert))
+			continue;
+		if (!mShowWarning && item.type == LogType_Warning)
+			continue;
+		if (!mShowError && (item.type == LogType_Error || item.type == LogType_Exception))
+			continue;
+
 		std::string msg = item.message;
 		msg += '\n';
 
@@ -90,6 +146,7 @@ void LogView::Update()
 			ImGui::PopStyleColor(1);
 		}
 	}
+	ImGui::EndChild();
 
 	ImGui::End();
 

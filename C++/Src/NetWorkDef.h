@@ -8,6 +8,7 @@ enum DTool_STC
 	DTool_STC_ReqActive				= 2,
 	DTool_STC_ReqObjMemory			= 3,
 	DTool_STC_ReqMemory				= 4,
+	DTool_STC_ReqUpdateHierarchy	= 5,
 
 	DTool_STC_Count
 };

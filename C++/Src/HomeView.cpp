@@ -62,6 +62,10 @@ void HomeView::OnSceneMode()
 
 	if (ImGui::Button(STU("Ë¢ÐÂ³¡¾°Ê÷").c_str(), ImVec2(itemWidth, itemHeight)))
 	{
+		cJSON* json = cJSON_CreateObject();
+		char* text = cJSON_Print(json);
+		NetWork::GetInstance()->SendToClient(DTool_STC_ReqUpdateHierarchy, text);
+		cJSON_Delete(json);
 	}
 
 	ImGui::Unindent(indent);

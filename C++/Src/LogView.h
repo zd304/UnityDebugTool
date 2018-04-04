@@ -37,6 +37,10 @@ private:
 	bool mOpen;
 	std::list<LogItem> mLogs;
 	int mSelect;
+
+	bool mShowLog;
+	bool mShowWarning;
+	bool mShowError;
 };
 
 #endif
