@@ -165,7 +165,7 @@ void LogView::Update()
 			std::string msg = item.message;
 			msg += '\n';
 			msg += item.stack;
-			ImGui::Text(msg.c_str());
+			ImGui::TextWrapped(msg.c_str());
 			break;
 		}
 	}
