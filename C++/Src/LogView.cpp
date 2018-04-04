@@ -94,7 +94,7 @@ void LogView::Update()
 
 	ImGui::BeginChild("#LogChild");
 	int index = 0;
-	for (std::list<LogItem>::iterator it = mLogs.begin(); it != mLogs.end(); ++it)
+	for (std::list<LogItem>::iterator it = mLogs.begin(); it != mLogs.end(); ++it, ++index)
 	{
 		LogItem& item = *it;
 		if (!mShowLog && (item.type == LogType_Log || item.type == LogType_Assert))
@@ -132,7 +132,6 @@ void LogView::Update()
 		bool bSel = (mSelect == index);
 		if (ImGui::Selectable(msg.c_str(), &bSel))
 			mSelect = index;
-		++index;
 
 		ImGui::PopID();
 
@@ -166,7 +165,7 @@ void LogView::Update()
 			std::string msg = item.message;
 			msg += '\n';
 			msg += item.stack;
-			ImGui::Text(STU(msg).c_str());
+			ImGui::Text(msg.c_str());
 			break;
 		}
 	}
