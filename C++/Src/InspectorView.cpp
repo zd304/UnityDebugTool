@@ -45,7 +45,7 @@ void InspectorView::Update()
 		{
 			HierarchyTree& tree = HierarchyView::GetInstance()->mTree;
 			HierarchyTreeNode* pNode = tree.GetNode(mData->path);
-			if (pNode && pNode->mParent != NULL)
+			if (pNode/* && pNode->mParent != NULL*/)
 			{
 				cJSON* json = cJSON_CreateObject();
 				cJSON_AddStringToObject(json, "p", mData->path.c_str());

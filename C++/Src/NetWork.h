@@ -32,6 +32,8 @@ public:
 	CRITICAL_SECTION mCriticalSection;
 	static const int port = 5304;
 	NetWorkRegister* mRegister;
+
+	std::string msgText;
 };
 
 #endif

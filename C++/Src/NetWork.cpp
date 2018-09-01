@@ -177,6 +177,56 @@ void NetWork::OnMsg(DTool_CTS cts, const std::string& msg)
 {
 	if (cts > DTool_CTS_Count || cts < 0)
 		return;
+
+	if (msg[0] == 'B' && msg[1] == 'I' && msg[2] == 'G')
+	{
+		msgText = msg.substr(3);
+		size_t last = msg.length() - 1;
+		if (msg[last - 2] == 'B' && msg[last - 1] == 'I' && msg[last] == 'G') 
+		{
+			std::string tmp = msg.substr(0, msg.length() - 3);
+			msgText += tmp;
+
+			NetWorkRegister::CBMsg cb = mRegister->cbMsg[cts];
+			if (cb != NULL)
+			{
+				cJSON* root = cJSON_Parse(msgText.c_str());
+				if (root)
+				{
+					cb(this, root);
+				}
+			}
+
+			msgText = "";
+		}
+		return;
+	}
+	if (msgText.length() > 0)
+	{
+		size_t last = msg.length() - 1;
+		if (msg[last - 2] == 'B' && msg[last - 1] == 'I' && msg[last] == 'G') 
+		{
+			std::string tmp = msg.substr(0, msg.length() - 3);
+			msgText += tmp;
+
+			NetWorkRegister::CBMsg cb = mRegister->cbMsg[cts];
+			if (cb != NULL)
+			{
+				cJSON* root = cJSON_Parse(msgText.c_str());
+				if (root)
+				{
+					cb(this, root);
+				}
+			}
+			msgText = "";
+		}
+		else
+		{
+			msgText += msg;
+		}
+		return;
+	}
+
 	NetWorkRegister::CBMsg cb = mRegister->cbMsg[cts];
 	if (cb != NULL)
 	{
