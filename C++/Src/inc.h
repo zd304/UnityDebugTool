@@ -11,6 +11,7 @@
 #include <vector>
 #include <queue>
 #include <list>
+#include <map>
 #pragma comment(lib, "ws2_32.lib")
 
 #define SAFE_DELETE(x) if (x) { delete x; x = NULL; }

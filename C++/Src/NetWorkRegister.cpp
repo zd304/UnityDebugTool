@@ -21,6 +21,7 @@ static void Msg_UpdateObject(NetWork* net, cJSON* json)
 	InspectorData* data = new InspectorData();
 	data->path = cJSON_GetObjectItem(json, "p")->valuestring;
 	data->active = cJSON_GetObjectItem(json, "a")->valueint;
+	data->instanceID = cJSON_GetObjectItem(json, "i")->valueint;
 	data->px = (float)cJSON_GetObjectItem(json, "px")->valuedouble;
 	data->py = (float)cJSON_GetObjectItem(json, "py")->valuedouble;
 	data->pz = (float)cJSON_GetObjectItem(json, "pz")->valuedouble;

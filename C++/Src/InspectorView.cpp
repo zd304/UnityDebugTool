@@ -44,13 +44,14 @@ void InspectorView::Update()
 		if (FormUtility::FormCheckBox(STU("¼¤»î×´Ì¬").c_str(), &bActive))
 		{
 			HierarchyTree& tree = HierarchyView::GetInstance()->mTree;
-			HierarchyTreeNode* pNode = tree.GetNode(mData->path);
+			HierarchyTreeNode* pNode = tree.GetNode(mData->instanceID);
 			if (pNode/* && pNode->mParent != NULL*/)
 			{
 				cJSON* json = cJSON_CreateObject();
 				cJSON_AddStringToObject(json, "p", mData->path.c_str());
 				mData->active = bActive ? 1 : 0;
 				cJSON_AddNumberToObject(json, "a", mData->active = bActive);
+				cJSON_AddNumberToObject(json, "i", mData->instanceID);
 				char* text = cJSON_Print(json);
 				NetWork::GetInstance()->SendToClient(DTool_STC_ReqActive, text);
 				cJSON_Delete(json);

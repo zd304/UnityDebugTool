@@ -4,9 +4,12 @@ HierarchyTreeNode::HierarchyTreeNode(cJSON* json, int layer)
 	: mParent(NULL), mLayer(layer)
 {
 	name = cJSON_GetObjectItem(json, "n")->valuestring;
+	mInstanceID = cJSON_GetObjectItem(json, "i")->valueint;
 	int active = cJSON_GetObjectItem(json, "a")->valueint;
 	mActive = active > 0 ? true : false;
 	mFoldout = false;
+
+	HierarchyTree::mSceneNodes[mInstanceID] = this;
 
 	mID = HierarchyTree::mTreeNodeID++;
 
@@ -35,6 +38,7 @@ HierarchyTreeNode::~HierarchyTreeNode()
 }
 
 int HierarchyTree::mTreeNodeID = 0;
+std::map<int, HierarchyTreeNode*> HierarchyTree::mSceneNodes;
 
 HierarchyTree::HierarchyTree()
 {
@@ -125,4 +129,13 @@ HierarchyTreeNode* HierarchyTree::GetNode(const std::string& path)
 	}
 
 	return root;
+}
+
+HierarchyTreeNode* HierarchyTree::GetNode(int instanceID)
+{
+	std::map<int, HierarchyTreeNode*>::iterator it;
+	it = HierarchyTree::mSceneNodes.find(instanceID);
+	if (it != HierarchyTree::mSceneNodes.end())
+		return it->second;
+	return NULL;
 }

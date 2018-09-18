@@ -43,14 +43,10 @@ public class DToolClient : MonoBehaviour
 	void InitServer()
 	{
 		string strJson = "";
-		string configPath = Application.persistentDataPath;
-		// Android : /data/data/xxx.xxx.xxx/files
-		// IOS : Application/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/Documents
-		#if UNITY_EDITOR_WIN
-		configPath = Application.dataPath;
-		configPath = configPath.Substring(0, configPath.LastIndexOf('/'));
-		configPath += "/Persistent";
-		#endif
+		string configPath = persistentDataPath;
+
+		if (!File.Exists(configPath + "/config/DTool.cfg"))
+			return;
 
 		using (FileStream file = new FileStream(configPath + "/config/DTool.cfg", FileMode.Open))
 		{
@@ -153,8 +149,10 @@ public class DToolClient : MonoBehaviour
 		clientSocket.Connect(ipep);
 	}
 
-	public void SendToServer(int ctsType, string msg)
+	public void SendToServer(int ctsType, string msg, bool unlock = false)
 	{
+		if (mBigMsgLock && !unlock)
+			return;
 		if (clientSocket == null)
 			return;
 
@@ -175,11 +173,21 @@ public class DToolClient : MonoBehaviour
 
 	void OnEnable()
 	{
+		#if UNITY_5
 		Application.logMessageReceived += HandleLog;
+		#else
+		Application.RegisterLogCallback(HandleLog);
+		#endif
 	}
 
 	void OnDisable()
 	{
+		#if UNITY_5
+		Application.logMessageReceived -= HandleLog;
+		#else
+		Application.RegisterLogCallback(null);
+		#endif
+
 		if (clientSocket != null)
 		{
 			clientSocket.Shutdown(SocketShutdown.Both);
@@ -217,10 +225,38 @@ public class DToolClient : MonoBehaviour
 		logic.AddLog(message, stack, type);
 	}
 
+	public void SetBigMsgLock(bool bLock)
+	{
+		mBigMsgLock = bLock;
+	}
+
 	Thread thread;
 	Socket clientSocket = null;
 	IPEndPoint ipep;
 	public DToolLogic logic = null;
 	byte[] mRecvData = null;
 	int mRecvLen = 0;
+	bool mBigMsgLock = false;
+
+	public Dictionary<int, GameObject> mSceneGameObjects = new Dictionary<int, GameObject>();
+
+	static string mPersistentDataPath = "";
+	public static string persistentDataPath
+	{
+		get
+		{
+			if (string.IsNullOrEmpty(mPersistentDataPath))
+			{
+				mPersistentDataPath = Application.persistentDataPath;
+				// Android : /data/data/xxx.xxx.xxx/files
+				// IOS : Application/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/Documents
+				#if UNITY_EDITOR_WIN
+				mPersistentDataPath = Application.dataPath;
+				mPersistentDataPath = mPersistentDataPath.Substring(0, mPersistentDataPath.LastIndexOf('/'));
+				mPersistentDataPath += "/Persistent";
+				#endif
+			}
+			return mPersistentDataPath;
+		}
+	}
 }

@@ -73,6 +73,7 @@ void HierarchyView::NodeGUI(HierarchyTreeNode* node)
 			std::string path = "";
 			mTree.GetPath(node, path);
 			cJSON_AddStringToObject(json, "p", path.c_str());
+			cJSON_AddNumberToObject(json, "i", node->mInstanceID);
 			char* text = cJSON_Print(json);
 			NetWork::GetInstance()->SendToClient(DTool_STC_ReqObject, text);
 			cJSON_Delete(json);

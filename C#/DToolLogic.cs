@@ -2,6 +2,7 @@
 using LitJson;
 using System;
 using System.Text;
+using System.Collections;
 using System.Collections.Generic;
 
 public class DToolLogic
@@ -29,15 +30,55 @@ public class DToolLogic
 			JsonData node = new JsonData();
 			node["n"] = go.name;
 			node["a"] = active;
+			node["i"] = go.GetInstanceID();
 			JsonData chidren = new JsonData();
 			node["c"] = chidren;
 			root.Add(node);
+
+			mClient.mSceneGameObjects[go.GetInstanceID()] = go;
+
 			AddChildNode(go, ref chidren);
 		}
 
 		string msg = root.ToJson();
 		msg = msg.Replace("\"c\":}", "\"c\":[]}");
-		mClient.SendToServer((int)DTool_CTS.DTool_CTS_UpdateHierarchy, msg);
+
+		int maxLen = 3000;
+		int groupCount = Mathf.CeilToInt(((float)msg.Length + 6.0f) / (float)maxLen);
+		string[] msgGroups = new string[groupCount];
+
+		mClient.SetBigMsgLock(true);
+		for (int i = 0; i < msgGroups.Length; ++i)
+		{
+			msgGroups[i] = "";
+			if (i == 0)
+				msgGroups[i] += "BIG";
+			
+			if (i == msgGroups.Length - 1)
+			{
+				msgGroups[i] += msg.Substring(i * maxLen);
+				msgGroups[i] += "BIG";
+			}
+			else
+			{
+				msgGroups[i] += msg.Substring(i * maxLen, maxLen);
+			}
+			//mClient.SendToServer((int)DTool_CTS.DTool_CTS_UpdateHierarchy, msgGroups[i]);
+			mClient.StartCoroutine(SendHierarchyInfo(msgGroups[i], 0.2f * (float)i, i == msgGroups.Length - 1));
+		}
+
+
+		//mClient.SendToServer((int)DTool_CTS.DTool_CTS_UpdateHierarchy, msg);
+	}
+
+	IEnumerator SendHierarchyInfo(string msg, float delay, bool unlock)
+	{
+		yield return new WaitForSeconds(delay);
+		mClient.SendToServer((int)DTool_CTS.DTool_CTS_UpdateHierarchy, msg, true);
+		if (unlock)
+		{
+			mClient.SetBigMsgLock(false);
+		}
 	}
 
 	void AddChildNode(GameObject rootGO, ref JsonData jsonRoot)
@@ -57,9 +98,13 @@ public class DToolLogic
 			JsonData node = new JsonData();
 			node["n"] = go.name;
 			node["a"] = active;
+			node["i"] = go.GetInstanceID();
 			JsonData chidren = new JsonData();
 			node["c"] = chidren;
 			jsonRoot.Add(node);
+
+			mClient.mSceneGameObjects[go.GetInstanceID()] = go;
+
 			AddChildNode(go, ref chidren);
 		}
 	}
@@ -84,9 +129,16 @@ public class DToolLogic
 		}
 	}
 
-	static GameObject FindObject(string path)
+	static GameObject FindObject(string path, DToolClient client, int instanceID)
 	{
-		GameObject go = GameObject.Find(path);
+		GameObject go = null;
+		bool isFind = client.mSceneGameObjects.TryGetValue(instanceID, out go);
+		if (isFind)
+		{
+			return go;
+		}
+
+		go = GameObject.Find(path);
 		if (go == null)
 		{
 			int index = path.IndexOf('/');
@@ -105,12 +157,15 @@ public class DToolLogic
 		return go;
 	}
 
+
+
 	////////////////////////////////////////////////////////////RegisterCallback////////////////////////////////////////////////////////////////////////////////////
 
 	static void Msg_ReqObject(JsonData json, DToolClient client)
 	{
 		string path = json["p"].ToString();
-		GameObject go = FindObject(path);
+		int instanceID = json["i"].AsInt;
+		GameObject go = FindObject(path, client, instanceID);
 		if (go == null)
 			return;
 		int active = 0;
@@ -119,6 +174,7 @@ public class DToolLogic
 
 		JsonData jsonData = new JsonData();
 		jsonData["p"] = path;
+		jsonData["i"] = go.GetInstanceID();
 		jsonData["a"] = active;
 		jsonData["px"] = go.transform.position.x;
 		jsonData["py"] = go.transform.position.y;
@@ -135,12 +191,13 @@ public class DToolLogic
 	static void Msg_ReqActive(JsonData json, DToolClient client)
 	{
 		string path = json["p"].ToString();
+		int instanceID = json["i"].AsInt;
 		int active = 0;
 		if (!int.TryParse(json["a"].ToString(), out active))
 		{
 			return;
 		}
-		GameObject go = FindObject(path);
+		GameObject go = FindObject(path, client, instanceID);
 		if (go == null)
 			return;
 		go.SetActive(active > 0);

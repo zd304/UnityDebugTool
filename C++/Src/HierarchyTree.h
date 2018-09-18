@@ -14,6 +14,7 @@ public:
 
 	std::string name;
 	bool mActive;
+	int mInstanceID;
 	bool mFoldout;
 	int mID;
 	int mLayer;
@@ -30,9 +31,13 @@ public:
 	void GetPath(const HierarchyTreeNode* node, std::string& output);
 
 	HierarchyTreeNode* GetNode(const std::string& path);
+
+	HierarchyTreeNode* GetNode(int instanceID);
 public:
 	std::vector<HierarchyTreeNode*> mRoots;
 	static int mTreeNodeID;
+
+	static std::map<int, HierarchyTreeNode*> mSceneNodes;
 };
 
 #endif

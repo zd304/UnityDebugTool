@@ -6,6 +6,7 @@
 struct InspectorData
 {
 	std::string path;
+	int instanceID;
 	int active;
 	float px, py, pz;
 	float rx, ry, rz;
