@@ -21,6 +21,8 @@ private:
 	void OnSceneMode();
 
 	void OnMemoryMode();
+
+	void OnGraphicMode();
 public:
 	bool mOpen;
 };

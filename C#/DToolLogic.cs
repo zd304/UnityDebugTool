@@ -43,7 +43,11 @@ public class DToolLogic
 		string msg = root.ToJson();
 		msg = msg.Replace("\"c\":}", "\"c\":[]}");
 
-		int maxLen = 3000;
+		mClient.SendToServer((int)DTool_CTS.DTool_CTS_UpdateHierarchy, msg);
+
+		return;
+
+		int maxLen = int.MaxValue;
 		int groupCount = Mathf.CeilToInt(((float)msg.Length + 6.0f) / (float)maxLen);
 		string[] msgGroups = new string[groupCount];
 
@@ -372,6 +376,31 @@ public class DToolLogic
 		client.logic.UpdateHierarchy();
 	}
 
+	static void Msg_ReqGraphicBase(JsonData json, DToolClient client)
+	{
+		long triNum = 0;
+		long vertNum = 0;
+		GameObject[] objs = GameObject.FindObjectsOfType<GameObject>();
+		for (int i = 0; i < objs.Length; ++i)
+		{
+			GameObject obj = objs[i];
+			MeshFilter[] filters = obj.GetComponentsInChildren<MeshFilter>();
+			for (int j = 0; j < filters.Length; ++j)
+			{
+				MeshFilter filter = filters[j];
+				if (!filter.sharedMesh.isReadable)
+					continue;
+				triNum += filter.sharedMesh.triangles.Length / 3;
+				vertNum += filter.sharedMesh.vertexCount;
+			}
+		}
+
+		JsonData jsonRoot = new JsonData ();
+		jsonRoot["fnum"] = ToCommasNumber(triNum);
+		jsonRoot["vnum"] = ToCommasNumber(vertNum);
+		client.SendToServer((int)DTool_CTS.DTool_CTS_GraphicBase, jsonRoot.ToJson());
+	}
+
 	public void Init()
 	{
 		mCBMsg[(int)DTool_STC.DTool_STC_ReqObject] = Msg_ReqObject;
@@ -379,6 +408,7 @@ public class DToolLogic
 		mCBMsg[(int)DTool_STC.DTool_STC_ReqObjMemory] = Msg_ReqObjMemory;
 		mCBMsg[(int)DTool_STC.DTool_STC_ReqMemory] = Msg_ReqMemory;
 		mCBMsg[(int)DTool_STC.DTool_STC_ReqUpdateHierarchy] = Msg_ReqUpdateHierarchy;
+		mCBMsg[(int)DTool_STC.DTool_STC_ReqGraphicBase] = Msg_ReqGraphicBase;
 	}
 
 	DToolClient mClient;

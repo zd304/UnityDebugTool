@@ -60,6 +60,9 @@
     <ClCompile Include="Src\MemoryView.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="Src\GraphicView.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\stb_truetype.h">
@@ -120,6 +123,12 @@
       <Filter>Src</Filter>
     </ClInclude>
     <ClInclude Include="Src\MemoryData.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\GraphicView.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\GraphicData.h">
       <Filter>Src</Filter>
     </ClInclude>
   </ItemGroup>

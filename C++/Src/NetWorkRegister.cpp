@@ -3,6 +3,7 @@
 #include "InspectorView.h"
 #include "LogView.h"
 #include "MemoryView.h"
+#include "GraphicView.h"
 
 static void Msg_UpdateHierarchy(NetWork* net, cJSON* json)
 {
@@ -154,6 +155,13 @@ static void Msg_Memory(NetWork* net, cJSON* json)
 	memoryInfo.monoUsedSize = cJSON_GetObjectItem(json, "mus")->valuestring;
 }
 
+static void Msg_GraphicBase(NetWork* net, cJSON* json)
+{
+	GraphicBasicInfo& graphicBasicInfo = GraphicView::GetInstance()->mBasicInfo;
+	graphicBasicInfo.meshFaceCount = cJSON_GetObjectItem(json, "fnum")->valuestring;
+	graphicBasicInfo.meshVerticeCount = cJSON_GetObjectItem(json, "vnum")->valuestring;
+}
+
 void NetWorkRegister::Init()
 {
 	cbMsg[DTool_CTS_UpdateHierarchy] = Msg_UpdateHierarchy;
@@ -161,4 +169,5 @@ void NetWorkRegister::Init()
 	cbMsg[DTool_CTS_AddLog] = Msg_AddLog;
 	cbMsg[DTool_CTS_ObjMemory] = Msg_ObjMemory;
 	cbMsg[DTool_CTS_Memory] = Msg_Memory;
+	cbMsg[DTool_CTS_GraphicBase] = Msg_GraphicBase;
 }

@@ -33,7 +33,8 @@ extern float window_height;
 enum EditorMode
 {
 	EditorMode_Scene,
-	EditorMode_Memory
+	EditorMode_Memory,
+	EditorMode_Graphic
 };
 
 extern EditorMode editor_mode;

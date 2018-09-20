@@ -29,6 +29,14 @@ static void UpdateMemoryInfo()
 	cJSON_Delete(json);
 }
 
+static void UpdateGraphicBasicInfo()
+{
+	cJSON* json = cJSON_CreateObject();
+	char* text = cJSON_Print(json);
+	NetWork::GetInstance()->SendToClient(DTool_STC_ReqGraphicBase, text);
+	cJSON_Delete(json);
+}
+
 void HomeView::OnMenu()
 {
 	if (ImGui::BeginMenuBar())
@@ -46,6 +54,11 @@ void HomeView::OnMenu()
 				editor_mode = EditorMode_Memory;
 
 				UpdateMemoryInfo();
+			}
+			b = (editor_mode == EditorMode_Graphic);
+			if (ImGui::MenuItem(STU("图形模式").c_str(), NULL, &b))
+			{
+				editor_mode = EditorMode_Graphic;
 			}
 			ImGui::EndMenu();
 		}
@@ -111,6 +124,21 @@ void HomeView::OnMemoryMode()
 	ImGui::Unindent(indent);
 }
 
+void HomeView::OnGraphicMode()
+{
+	float itemWidth = 200.0f;
+	float itemHeight = 30.0f;
+	float indent = window_width / 6.0f - itemWidth * 0.5f - 16.0f;
+	ImGui::Indent(indent);
+
+	if (ImGui::Button(STU("更新图形基本信息").c_str(), ImVec2(itemWidth, itemHeight)))
+	{
+		UpdateGraphicBasicInfo();
+	}
+
+	ImGui::Unindent(indent);
+}
+
 void HomeView::Update()
 {
 	ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
@@ -126,6 +154,9 @@ void HomeView::Update()
 		break;
 	case EditorMode_Memory:
 		OnMemoryMode();
+		break;
+	case EditorMode_Graphic:
+		OnGraphicMode();
 		break;
 	default:
 		break;

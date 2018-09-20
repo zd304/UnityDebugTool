@@ -90,6 +90,7 @@
   <ItemGroup>
     <ClCompile Include="Src\cJSON.c" />
     <ClCompile Include="Src\EditorMain.cpp" />
+    <ClCompile Include="Src\GraphicView.cpp" />
     <ClCompile Include="Src\HierarchyTree.cpp" />
     <ClCompile Include="Src\HierarchyView.cpp" />
     <ClCompile Include="Src\HomeView.cpp" />
@@ -108,6 +109,8 @@
   <ItemGroup>
     <ClInclude Include="Src\cJSON.h" />
     <ClInclude Include="Src\EditorMain.h" />
+    <ClInclude Include="Src\GraphicData.h" />
+    <ClInclude Include="Src\GraphicView.h" />
     <ClInclude Include="Src\HomeView.h" />
     <ClInclude Include="Src\HierarchyTree.h" />
     <ClInclude Include="Src\HierarchyView.h" />

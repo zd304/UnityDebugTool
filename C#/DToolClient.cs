@@ -17,6 +17,7 @@ public enum DTool_STC
 	DTool_STC_ReqObjMemory			= 3,
 	DTool_STC_ReqMemory				= 4,
 	DTool_STC_ReqUpdateHierarchy	= 5,
+	DTool_STC_ReqGraphicBase		= 6,
 
 	DTool_STC_Count
 }
@@ -29,6 +30,7 @@ public enum DTool_CTS
 	DTool_CTS_AddLog				= 3,
 	DTool_CTS_ObjMemory				= 4,
 	DTool_CTS_Memory				= 5,
+	DTool_CTS_GraphicBase			= 6,
 
 	DTool_CTS_Count
 }

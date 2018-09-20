@@ -5,6 +5,7 @@
 #include "InspectorView.h"
 #include "LogView.h"
 #include "MemoryView.h"
+#include "GraphicView.h"
 
 EditorMain::EditorMain(LPDIRECT3DDEVICE9 device, HWND hwnd)
 {
@@ -19,6 +20,7 @@ EditorMain::EditorMain(LPDIRECT3DDEVICE9 device, HWND hwnd)
 	InspectorView::GetInstance();
 	LogView::GetInstance();
 	MemoryView::GetInstance();
+	GraphicView::GetInstance();
 }
 
 EditorMain::~EditorMain()
@@ -30,6 +32,7 @@ EditorMain::~EditorMain()
 	InspectorView::DeleteInstance();
 	LogView::DeleteInstance();
 	MemoryView::DeleteInstance();
+	GraphicView::DeleteInstance();
 }
 
 void EditorMain::Update()
@@ -48,6 +51,7 @@ void EditorMain::Update()
 	InspectorView::GetInstance()->Update();
 	LogView::GetInstance()->Update();
 	MemoryView::GetInstance()->Update();
+	GraphicView::GetInstance()->Update();
 
 	ImGui::PopStyleColor(3);
 }
