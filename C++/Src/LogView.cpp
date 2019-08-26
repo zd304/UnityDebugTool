@@ -17,7 +17,7 @@ void LogView::DeleteInstance()
 LogView::LogView()
 {
 	mOpen = true;
-	mLogs.clear();
+	Clear();
 	mSelect = -1;
 
 	mShowLog = true;
@@ -27,18 +27,30 @@ LogView::LogView()
 
 LogView::~LogView()
 {
+	Clear();
+}
 
+void LogView::Clear()
+{
+	for (std::vector<LogItem*>::iterator it = mLogs.begin(); it != mLogs.end(); ++it)
+	{
+		LogItem* item = *it;
+		SAFE_DELETE(item);
+	}
+	mLogs.clear();
 }
 
 void LogView::AddLog(const char* msg, const char* stack, LogType type)
 {
-	LogItem item;
-	item.message = msg;
-	item.stack = stack;
-	item.type = type;
+	LogItem* item = new LogItem();
+	item->message = msg;
+	item->stack = stack;
+	item->type = type;
 	mLogs.push_back(item);
 	if (mLogs.size() > 120)
 	{
+		LogItem* first = *(mLogs.begin());
+		SAFE_DELETE(first);
 		mLogs.erase(mLogs.begin());
 	}
 }
@@ -84,7 +96,7 @@ void LogView::Update()
 
 	if (ImGui::Button(STU("Çå¿Õ").c_str()))
 	{
-		mLogs.clear();
+		Clear();
 		mSelect = -1;
 	}
 
@@ -94,32 +106,32 @@ void LogView::Update()
 
 	ImGui::BeginChild("#LogChild");
 	int index = 0;
-	for (std::list<LogItem>::iterator it = mLogs.begin(); it != mLogs.end(); ++it, ++index)
+	for (std::vector<LogItem*>::iterator it = mLogs.begin(); it != mLogs.end(); ++it, ++index)
 	{
-		LogItem& item = *it;
-		if (!mShowLog && (item.type == LogType_Log || item.type == LogType_Assert))
+		LogItem* item = *it;
+		if (!mShowLog && (item->type == LogType_Log || item->type == LogType_Assert))
 			continue;
-		if (!mShowWarning && item.type == LogType_Warning)
+		if (!mShowWarning && item->type == LogType_Warning)
 			continue;
-		if (!mShowError && (item.type == LogType_Error || item.type == LogType_Exception))
+		if (!mShowError && (item->type == LogType_Error || item->type == LogType_Exception))
 			continue;
 
-		std::string msg = item.message;
+		std::string msg = item->message;
 		msg += '\n';
 
-		std::string stackInfo = item.stack;
+		std::string stackInfo = item->stack;
 		stackInfo = stackInfo.substr(0, stackInfo.find('\n'));
 		msg += stackInfo;
 
-		if (item.type == LogType_Error)
+		if (item->type == LogType_Error)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(1.0f, 0.0f, 0.0f));
 		}
-		else if (item.type == LogType_Exception)
+		else if (item->type == LogType_Exception)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(1.0f, 0.0f, 0.3f));
 		}
-		else if (item.type == LogType_Warning)
+		else if (item->type == LogType_Warning)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(1.0f, 1.0f, 0.3f));
 		}
@@ -135,9 +147,9 @@ void LogView::Update()
 
 		ImGui::PopID();
 
-		if (item.type == LogType_Error
-			|| item.type == LogType_Exception
-			|| item.type == LogType_Warning)
+		if (item->type == LogType_Error
+			|| item->type == LogType_Exception
+			|| item->type == LogType_Warning)
 		{
 			ImGui::PopStyleColor(1);
 		}
@@ -153,18 +165,17 @@ void LogView::Update()
 	if (mSelect >= 0)
 	{
 		index = 0;
-		std::list<LogItem>::iterator it;
-		for (it = mLogs.begin(); it != mLogs.end(); ++it)
+		for (std::vector<LogItem*>::iterator it = mLogs.begin(); it != mLogs.end(); ++it)
 		{
 			if (index != mSelect)
 			{
 				index++;
 				continue;
 			}
-			LogItem& item = *it;
-			std::string msg = item.message;
+			LogItem* item = *it;
+			std::string msg = item->message;
 			msg += '\n';
-			msg += item.stack;
+			msg += item->stack;
 			ImGui::TextWrapped(msg.c_str());
 			break;
 		}

@@ -12,8 +12,9 @@ enum LogType
 	LogType_Exception
 };
 
-struct LogItem
+class LogItem
 {
+public:
 	std::string message;
 	std::string stack;
 	LogType type;
@@ -33,11 +34,12 @@ private:
 	LogView();
 	~LogView();
 
+	void Clear();
 	void OnShowEnable(const char* showName, bool& bShow);
 private:
 	static LogView* mInstance;
 	bool mOpen;
-	std::list<LogItem> mLogs;
+	std::vector<LogItem*> mLogs;
 	int mSelect;
 
 	bool mShowLog;
