@@ -157,6 +157,9 @@ public class DToolClient : MonoBehaviour
 			return;
 		if (clientSocket == null)
 			return;
+		
+		var reg = new System.Text.RegularExpressions.Regex(@"(?i)\\[uU]([0-9a-f]{4})");
+        msg = reg.Replace(msg, delegate (System.Text.RegularExpressions.Match m) { return ((char)Convert.ToInt32(m.Groups[1].Value, 16)).ToString(); });
 
 		byte[] intBuff = System.BitConverter.GetBytes(ctsType);
 		byte[] concent = Encoding.UTF8.GetBytes(msg);
