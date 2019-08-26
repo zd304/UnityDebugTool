@@ -6,6 +6,14 @@
 
 class NetWorkRegister;
 
+class QMsgData
+{
+public:
+	bool used;
+	DTool_CTS cts;
+	std::string msg;
+};
+
 class NetWork
 {
 public:
@@ -16,6 +24,8 @@ public:
 	void OnMsg(DTool_CTS cts, const std::string& msg);
 
 	void SendToClient(DTool_STC stc, const char* msg);
+
+	void Update();
 private:
 	NetWork(HWND hwnd);
 
@@ -31,9 +41,15 @@ public:
 	HANDLE mThreadHandle;
 	CRITICAL_SECTION mCriticalSection;
 	static const int port = 5304;
+	static const int maxBufferSize = 4096000;
 	NetWorkRegister* mRegister;
 
+	char* recvBuffer;
+
 	std::string msgText;
+
+	std::list<QMsgData> msgs;
+	HANDLE hMutex;
 };
 
 #endif

@@ -38,11 +38,11 @@ static void Msg_UpdateObject(NetWork* net, cJSON* json)
 
 static void Msg_AddLog(NetWork* net, cJSON* json)
 {
-	std::string msg = cJSON_GetObjectItem(json, "m")->valuestring;
-	std::string stack = cJSON_GetObjectItem(json, "s")->valuestring;
+	const char* msg = cJSON_GetObjectItem(json, "m")->valuestring;
+	const char* stack = cJSON_GetObjectItem(json, "s")->valuestring;
 	int type = cJSON_GetObjectItem(json, "t")->valueint;
 
-	LogView::GetInstance()->AddLog(msg.c_str(), stack.c_str(), (LogType)type);
+	LogView::GetInstance()->AddLog(msg, stack, (LogType)type);
 }
 
 static void Msg_ObjMemory(NetWork* net, cJSON* json)

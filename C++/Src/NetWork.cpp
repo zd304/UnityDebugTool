@@ -22,8 +22,10 @@ void NetWork::DeleteInstance()
 }
 
 NetWork::NetWork(HWND hwnd)
-	: mHwnd(hwnd)
+	: mHwnd(hwnd), hMutex(NULL)
 {
+	recvBuffer = new char[maxBufferSize];
+
 	mClientSocket = 0;
 
 	mRegister = new NetWorkRegister();
@@ -36,7 +38,7 @@ NetWork::NetWork(HWND hwnd)
 	if (ret != 0)
 	{
 		std::string msg = "WSAStart up is failed with error\t" + ret;
-		MessageBox(mHwnd, msg.c_str(), "Net Error", MB_OK);
+		MessageBoxA(mHwnd, msg.c_str(), "Net Error", MB_OK);
 		return;
 	}
 
@@ -44,7 +46,7 @@ NetWork::NetWork(HWND hwnd)
 	if (INVALID_SOCKET == mSrvSocket)
 	{
 		std::string msg = "socket is failed with error: " + WSAGetLastError();
-		MessageBox(mHwnd, msg.c_str(), "Net Error", MB_OK);
+		MessageBoxA(mHwnd, msg.c_str(), "Net Error", MB_OK);
 		WSACleanup();
 		return;
 	}
@@ -58,7 +60,7 @@ NetWork::NetWork(HWND hwnd)
 	if (SOCKET_ERROR == ret)
 	{
 		std::string msg = "bind is failed with error: " + WSAGetLastError();
-		MessageBox(mHwnd, msg.c_str(), "Net Error", MB_OK);
+		MessageBoxA(mHwnd, msg.c_str(), "Net Error", MB_OK);
 		closesocket(mSrvSocket);
 		WSACleanup();
 		return;
@@ -68,12 +70,13 @@ NetWork::NetWork(HWND hwnd)
 	if (SOCKET_ERROR == ret)
 	{
 		std::string msg = "listen is failed with error: " + WSAGetLastError();
-		MessageBox(mHwnd, msg.c_str(), "Net Error", MB_OK);
+		MessageBoxA(mHwnd, msg.c_str(), "Net Error", MB_OK);
 		closesocket(mSrvSocket);
 		WSACleanup();
 		return;
 	}
 
+	hMutex = CreateMutex(NULL, FALSE, NULL);
 	InitializeCriticalSection(&mCriticalSection);
 
 	g_ThreadRunning = true;
@@ -93,7 +96,7 @@ DWORD WINAPI NetThreadFunc(LPVOID lpParameter)
 	if (INVALID_SOCKET == clientSocket)
 	{
 		std::string msg = "accept is failed with error: " + WSAGetLastError();
-		MessageBox(netWork->mHwnd, msg.c_str(), "Net Error", MB_OK);
+		MessageBoxA(netWork->mHwnd, msg.c_str(), "Net Error", MB_OK);
 		closesocket(srvSocket);
 		WSACleanup();
 		return 0;
@@ -108,8 +111,8 @@ DWORD WINAPI NetThreadFunc(LPVOID lpParameter)
 
 		EnterCriticalSection(&netWork->mCriticalSection);
 
-		char dataBuffer[409600];
-		int ret = recv(clientSocket, dataBuffer, sizeof(dataBuffer), 0);
+		memset(netWork->recvBuffer, 0, netWork->maxBufferSize);
+		int ret = recv(clientSocket, netWork->recvBuffer, netWork->maxBufferSize, 0);
 		if (SOCKET_ERROR == ret || ret == 0)
 		{
  			closesocket(clientSocket);
@@ -118,7 +121,7 @@ DWORD WINAPI NetThreadFunc(LPVOID lpParameter)
 			if (INVALID_SOCKET == clientSocket)
 			{
 				std::string msg = "accept is failed with error: " + WSAGetLastError();
-				MessageBox(netWork->mHwnd, msg.c_str(), "Net Error", MB_OK);
+				MessageBoxA(netWork->mHwnd, msg.c_str(), "Net Error", MB_OK);
 				closesocket(srvSocket);
 				WSACleanup();
 				return 0;
@@ -126,8 +129,8 @@ DWORD WINAPI NetThreadFunc(LPVOID lpParameter)
 			netWork->mClientSocket = clientSocket;
 		}
 
-		dataBuffer[ret] = '\0';
-		netWork->OnReceive(dataBuffer, ret);
+		//netWork->recvBuffer[ret] = '\0';
+		netWork->OnReceive(netWork->recvBuffer, ret);
 
 		LeaveCriticalSection(&netWork->mCriticalSection);
 	}
@@ -137,6 +140,8 @@ DWORD WINAPI NetThreadFunc(LPVOID lpParameter)
 
 NetWork::~NetWork()
 {
+	SAFE_DELETE_ARRAY(recvBuffer);
+
 	SAFE_DELETE(mRegister);
 
 	g_ThreadRunning = false;
@@ -169,63 +174,59 @@ void NetWork::OnReceive(const char* msg, int len)
 	char* cMsg = new char[len+1];
 	memset(cMsg, 0, len+1);
 	memcpy(cMsg, msg + 4, len - 4);
-	std::string sMsg = cMsg;
-	OnMsg((DTool_CTS)ih.i, sMsg);
+	std::string sMsg = Utf8ToGbk(cMsg);
+
+	WaitForSingleObject(hMutex, INFINITE);
+	if (msgs.size() > 0)
+	{
+		QMsgData* data = &(*msgs.begin());
+		while (msgs.size() > 0 && data->used)
+		{
+			std::list<QMsgData>::iterator it = msgs.begin();
+			std::list<QMsgData>::iterator next = it;
+			++next;
+			msgs.erase(it);
+			if (msgs.size() > 0)
+			{
+				data = &(*next);
+			}
+		}
+	}
+
+	QMsgData qmsgData;
+	qmsgData.used = false;
+	qmsgData.cts = (DTool_CTS)ih.i;
+	qmsgData.msg = sMsg;
+	msgs.push_back(qmsgData);
+
+	ReleaseMutex(hMutex);	
+}
+
+void NetWork::Update()
+{
+	WaitForSingleObject(hMutex, INFINITE);
+
+	std::list<QMsgData>::iterator it = msgs.begin();
+	while (it != msgs.end())
+	{
+		QMsgData& data = *it;
+
+		if (!data.used)
+		{
+			OnMsg(data.cts, data.msg);
+			data.used = true;
+		}
+		
+		++it;
+	}
+
+	ReleaseMutex(hMutex);
 }
 
 void NetWork::OnMsg(DTool_CTS cts, const std::string& msg)
 {
 	if (cts > DTool_CTS_Count || cts < 0)
 		return;
-
-	if (msg[0] == 'B' && msg[1] == 'I' && msg[2] == 'G')
-	{
-		msgText = msg.substr(3);
-		size_t last = msg.length() - 1;
-		if (msg[last - 2] == 'B' && msg[last - 1] == 'I' && msg[last] == 'G') 
-		{
-			std::string tmp = msg.substr(0, msg.length() - 3);
-			msgText += tmp;
-
-			NetWorkRegister::CBMsg cb = mRegister->cbMsg[cts];
-			if (cb != NULL)
-			{
-				cJSON* root = cJSON_Parse(msgText.c_str());
-				if (root)
-				{
-					cb(this, root);
-				}
-			}
-
-			msgText = "";
-		}
-		return;
-	}
-	if (msgText.length() > 0)
-	{
-		size_t last = msg.length() - 1;
-		if (msg[last - 2] == 'B' && msg[last - 1] == 'I' && msg[last] == 'G') 
-		{
-			std::string tmp = msg.substr(0, msg.length() - 3);
-			msgText += tmp;
-
-			NetWorkRegister::CBMsg cb = mRegister->cbMsg[cts];
-			if (cb != NULL)
-			{
-				cJSON* root = cJSON_Parse(msgText.c_str());
-				if (root)
-				{
-					cb(this, root);
-				}
-			}
-			msgText = "";
-		}
-		else
-		{
-			msgText += msg;
-		}
-		return;
-	}
 
 	NetWorkRegister::CBMsg cb = mRegister->cbMsg[cts];
 	if (cb != NULL)

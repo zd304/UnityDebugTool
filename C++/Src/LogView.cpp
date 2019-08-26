@@ -142,7 +142,7 @@ void LogView::Update()
 		ImGui::PushID(sprid);
 
 		bool bSel = (mSelect == index);
-		if (ImGui::Selectable(msg.c_str(), &bSel))
+		if (ImGui::Selectable(GbkToUtf8(msg.c_str()).c_str(), &bSel))
 			mSelect = index;
 
 		ImGui::PopID();
@@ -176,7 +176,7 @@ void LogView::Update()
 			std::string msg = item->message;
 			msg += '\n';
 			msg += item->stack;
-			ImGui::TextWrapped(msg.c_str());
+			ImGui::TextWrapped(GbkToUtf8(msg.c_str()).c_str());
 			break;
 		}
 	}

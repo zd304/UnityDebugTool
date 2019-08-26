@@ -37,6 +37,8 @@ EditorMain::~EditorMain()
 
 void EditorMain::Update()
 {
+	NetWork::GetInstance()->Update();
+
 	RECT rc;
 	::GetClientRect(mHwnd, &rc);
 	window_width = (float)(rc.right - rc.left);

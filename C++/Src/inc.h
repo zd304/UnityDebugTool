@@ -21,6 +21,9 @@ std::string UTS(const std::string & str);
 
 std::string STU(const std::string & str);
 
+std::string Utf8ToGbk(const char *src_str);
+std::string GbkToUtf8(const char *src_str);
+
 std::string ToCommasNumber(int number);
 
 std::string ToString(int number);
