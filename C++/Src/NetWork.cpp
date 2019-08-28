@@ -112,6 +112,7 @@ DWORD WINAPI NetThreadFunc(LPVOID lpParameter)
 		EnterCriticalSection(&netWork->mCriticalSection);
 
 		memset(netWork->recvBuffer, 0, netWork->maxBufferSize);
+		// 阻塞接收消息
 		int ret = recv(clientSocket, netWork->recvBuffer, netWork->maxBufferSize, 0);
 		if (SOCKET_ERROR == ret || ret == 0)
 		{
@@ -129,8 +130,44 @@ DWORD WINAPI NetThreadFunc(LPVOID lpParameter)
 			netWork->mClientSocket = clientSocket;
 		}
 
+		int ctsNumber;
+		memcpy(&ctsNumber, netWork->recvBuffer, 4);
+
 		//netWork->recvBuffer[ret] = '\0';
 		netWork->OnReceive(netWork->recvBuffer, ret);
+
+		DTool_CTS cts = (DTool_CTS)ctsNumber;
+		if (cts == DTool_CTS_NextSize)
+		{
+			int bufferSize = 0;
+			memcpy(&bufferSize, netWork->recvBuffer + 4, 4);
+
+			bufferSize += 4;
+			char* temp = new char[bufferSize + 1];
+			memset(temp, 0, bufferSize + 1);
+
+			// 阻塞接收消息
+			ret = recv(clientSocket, temp, bufferSize, 0);
+			netWork->OnReceive(temp, bufferSize);
+
+			delete[] temp;
+
+			if (SOCKET_ERROR == ret || ret == 0)
+			{
+				closesocket(clientSocket);
+				netWork->mClientSocket = 0;
+				clientSocket = accept(srvSocket, (sockaddr*)&clientAddr, &clientAddrLen);
+				if (INVALID_SOCKET == clientSocket)
+				{
+					std::string msg = "accept is failed with error: " + WSAGetLastError();
+					MessageBoxA(netWork->mHwnd, msg.c_str(), "Net Error", MB_OK);
+					closesocket(srvSocket);
+					WSACleanup();
+					return 0;
+				}
+				netWork->mClientSocket = clientSocket;
+			}
+		}
 
 		LeaveCriticalSection(&netWork->mCriticalSection);
 	}
@@ -232,10 +269,7 @@ void NetWork::OnMsg(DTool_CTS cts, const std::string& msg)
 	if (cb != NULL)
 	{
 		cJSON* root = cJSON_Parse(msg.c_str());
-		if (root)
-		{
-			cb(this, root);
-		}
+		cb(this, root, msg.c_str());
 	}
 }
 

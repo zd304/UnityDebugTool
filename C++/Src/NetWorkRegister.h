@@ -11,7 +11,7 @@ class NetWorkRegister
 public:
 	void Init();
 public:
-	typedef void (*CBMsg)(NetWork* net, cJSON* json);
+	typedef void (*CBMsg)(NetWork* net, cJSON* json, const char* str);
 	CBMsg cbMsg[DTool_CTS_Count];
 };
 

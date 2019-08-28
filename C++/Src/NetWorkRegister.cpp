@@ -4,8 +4,9 @@
 #include "LogView.h"
 #include "MemoryView.h"
 #include "GraphicView.h"
+#include <fstream>
 
-static void Msg_UpdateHierarchy(NetWork* net, cJSON* json)
+static void Msg_UpdateHierarchy(NetWork* net, cJSON* json, const char* str)
 {
 	HierarchyView* view = HierarchyView::GetInstance();
 	view->mTree.Clear();
@@ -17,7 +18,7 @@ static void Msg_UpdateHierarchy(NetWork* net, cJSON* json)
 	}
 }
 
-static void Msg_UpdateObject(NetWork* net, cJSON* json)
+static void Msg_UpdateObject(NetWork* net, cJSON* json, const char* str)
 {
 	InspectorData* data = new InspectorData();
 	data->path = cJSON_GetObjectItem(json, "p")->valuestring;
@@ -36,7 +37,7 @@ static void Msg_UpdateObject(NetWork* net, cJSON* json)
 	InspectorView::GetInstance()->SetData(data);
 }
 
-static void Msg_AddLog(NetWork* net, cJSON* json)
+static void Msg_AddLog(NetWork* net, cJSON* json, const char* str)
 {
 	const char* msg = cJSON_GetObjectItem(json, "m")->valuestring;
 	const char* stack = cJSON_GetObjectItem(json, "s")->valuestring;
@@ -45,7 +46,7 @@ static void Msg_AddLog(NetWork* net, cJSON* json)
 	LogView::GetInstance()->AddLog(msg, stack, (LogType)type);
 }
 
-static void Msg_ObjMemory(NetWork* net, cJSON* json)
+static void Msg_ObjMemory(NetWork* net, cJSON* json, const char* str)
 {
 	MemoryView::GetInstance()->mLock = true;
 
@@ -144,7 +145,7 @@ static void Msg_ObjMemory(NetWork* net, cJSON* json)
 	MemoryView::GetInstance()->mLock = false;
 }
 
-static void Msg_Memory(NetWork* net, cJSON* json)
+static void Msg_Memory(NetWork* net, cJSON* json, const char* str)
 {
 	TotalMemoryInfo& memoryInfo = MemoryView::GetInstance()->mTotalMemoryInfo;
 
@@ -155,11 +156,25 @@ static void Msg_Memory(NetWork* net, cJSON* json)
 	memoryInfo.monoUsedSize = cJSON_GetObjectItem(json, "mus")->valuestring;
 }
 
-static void Msg_GraphicBase(NetWork* net, cJSON* json)
+static void Msg_GraphicBase(NetWork* net, cJSON* json, const char* str)
 {
 	GraphicBasicInfo& graphicBasicInfo = GraphicView::GetInstance()->mBasicInfo;
 	graphicBasicInfo.meshFaceCount = cJSON_GetObjectItem(json, "fnum")->valuestring;
 	graphicBasicInfo.meshVerticeCount = cJSON_GetObjectItem(json, "vnum")->valuestring;
+}
+
+static void Msg_ErrorLog(NetWork* net, cJSON* json, const char* str)
+{
+	std::string fileName = cJSON_GetObjectItem(json, "f")->valuestring;
+	std::string content = cJSON_GetObjectItem(json, "c")->valuestring;
+
+	std::ofstream stream(fileName, std::ios::out | std::ios::binary);
+	//if (stream.is_open())
+	{
+		stream.write(content.c_str(), content.length());
+		stream.flush();
+		stream.close();
+	}
 }
 
 void NetWorkRegister::Init()
@@ -170,4 +185,5 @@ void NetWorkRegister::Init()
 	cbMsg[DTool_CTS_ObjMemory] = Msg_ObjMemory;
 	cbMsg[DTool_CTS_Memory] = Msg_Memory;
 	cbMsg[DTool_CTS_GraphicBase] = Msg_GraphicBase;
+	cbMsg[DTool_CTS_ErrorLog] = Msg_ErrorLog;
 }

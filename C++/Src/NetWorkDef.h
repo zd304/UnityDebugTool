@@ -23,6 +23,8 @@ enum DTool_CTS
 	DTool_CTS_ObjMemory				= 4,
 	DTool_CTS_Memory				= 5,
 	DTool_CTS_GraphicBase			= 6,
+	DTool_CTS_NextSize				= 7,
+	DTool_CTS_ErrorLog				= 8,
 
 	DTool_CTS_Count
 };
